@@ -22,14 +22,13 @@ namespace Player_database
         {
             _nickName = nickName;
 
-            if (lvl > 0 && lvl < 100)
+            if (lvl > 0 && lvl <= 100)
             {
                 _lvl = lvl;
             }
             else
             {
                 _lvl = 1;
-                IsBanned = false;
             }
         }
         public void Unban()
@@ -44,7 +43,8 @@ namespace Player_database
 
         public void ShowDetails()
         {
-            Console.WriteLine($"Ник персонажа - {_nickName}, его уровень - {_lvl}, статус бана - {IsBanned}");
+            if(IsBanned == true) Console.WriteLine($"Ник персонажа - {_nickName}, его уровень - {_lvl}, статус бана - заблокирован");
+            else Console.WriteLine($"Ник персонажа - {_nickName}, его уровень - {_lvl}, статус бана - не заблокирован");
         }
     }
 
@@ -55,7 +55,9 @@ namespace Player_database
 
         public void Work()
         {
-            string[] menu = { "Добавить игрока", "Разбанить игрока", "Заблокировать игрока", "Удалить игрока", "Выход" };
+            _players.Add(new Player("Sam", 87));
+            _players.Add(new Player("Prop", 98));
+            string[] menu = { "Добавить игрока", "Разбанить игрока", "Заблокировать игрока", "Удалить игрока", "Посмотрет всех игроков", "Выход" };
             int index = 0;
 
             while (_isServerWork)
@@ -100,15 +102,18 @@ namespace Player_database
                     AddPlayer();
                     break;
                 case 1:
-                    LockPlaywr();
+                    UnlockPlayer("разблокировать");
                     break;
                 case 2:
-                    UnlockPlayer();
+                    UnlockPlayer("заблокировать");
                     break;
                 case 3:
                     DeletePlayer();
                     break;
                 case 4:
+                    ShowDataServer();
+                    break;
+                case 5:
                     Exit();
                     break;
             }
@@ -116,16 +121,18 @@ namespace Player_database
 
         private void DeletePlayer()
         {
-            string userInput;
+            string userInput = "";
             int checkingForANumber;
             bool isStringNumber;
+
+            Clear();
 
             if (_players.Count > 0)
             {
                 ShowDataServer();
                 Console.Write("Что бы удалить игрока, ведите его номер: ");
 
-                isStringNumber = CheckString(out userInput, out checkingForANumber);
+                isStringNumber = CheckString(userInput, out checkingForANumber);
 
                 if (isStringNumber)
                 {
@@ -137,58 +144,22 @@ namespace Player_database
                 }
             }
             else Console.WriteLine("Сервер пустой!");
+        }
+
+        private void UnlockPlayer(string unlock)
+        {
+            string userInput = "";
+            int checkingForANumber;
+            bool isConsoleBanActive;
 
             Clear();
-        }
-
-        private void LockPlaywr()
-        {
-            string userInput;
-            int checkingForANumber;
-            bool isConsoleBanActive;
 
             if (_players.Count > 0)
             {
                 ShowDataServer();
-                Console.Write("Что бы разблокировать игрока, введите его номер: ");
+                Console.Write($"Что бы {unlock} игрока, введите его номер: ");
 
-                isConsoleBanActive = CheckString(out userInput, out checkingForANumber);
-
-                if (isConsoleBanActive)
-                {
-                    if (isConsoleBanActive)
-                    {
-                        if (_players[checkingForANumber - 1].IsBanned == true)
-                        {
-                            _players[checkingForANumber - 1].Unban();
-                            _players[checkingForANumber - 1].ShowDetails();
-                        }
-                        else Console.WriteLine("Игрок разаблокирован");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Данные не корректны");
-                    }
-                }
-                else Console.WriteLine("Сервер пустой!");
-
-                Clear();
-            }
-
-        }
-
-        private void UnlockPlayer()
-        {
-            string userInput;
-            int checkingForANumber;
-            bool isConsoleBanActive;
-
-            if (_players.Count > 0)
-            {
-                ShowDataServer();
-                Console.Write("Что бы заблокировать игрока, введите его номер: ");
-
-                isConsoleBanActive = CheckString(out userInput, out checkingForANumber);
+                isConsoleBanActive = CheckString(userInput, out checkingForANumber);
 
                 if (isConsoleBanActive)
                 {
@@ -199,7 +170,11 @@ namespace Player_database
                             _players[checkingForANumber - 1].Ban();
                             _players[checkingForANumber - 1].ShowDetails();
                         }
-                        else Console.WriteLine("Игрок заблокирован");
+                        if (_players[checkingForANumber - 1].IsBanned)
+                        {
+                            _players[checkingForANumber - 1].Unban();
+                            _players[checkingForANumber - 1].ShowDetails();
+                        }
                     }
                     else
                     {
@@ -207,8 +182,6 @@ namespace Player_database
                     }
                 }
                 else Console.WriteLine("Сервер пустой!");
-
-                Clear();
             }
         }
 
@@ -226,15 +199,17 @@ namespace Player_database
         private void AddPlayer()
         {
             string nickName;
-            string lvl;
+            string lvl = "";
             int checkingForANumber;
             bool isStringName;
+
+            Clear();
 
             Console.Write("Введите Ник игрока: ");
             nickName = Convert.ToString(Console.ReadLine());
 
             Console.Write("Введите LVL игрока: ");
-            isStringName = CheckString(out lvl, out checkingForANumber);
+            isStringName = CheckString(lvl, out checkingForANumber);
 
             if (isStringName)
             {
@@ -246,14 +221,10 @@ namespace Player_database
                 Console.WriteLine("Введите коректные данные!");
 
             }
-
-            Clear();
         }
 
-        private bool CheckString(out string userInput, out int result)
+        private bool CheckString(string userInput, out int result)
         {
-            userInput = " ";
-            result = 0;
             bool isStringNumber;
 
             userInput = Console.ReadLine();
@@ -269,8 +240,8 @@ namespace Player_database
 
         private void Clear()
         {
-            byte indentDown = 5;
-            byte cleaningTheConsole = 15;
+            byte indentDown = 7;
+            byte cleaningTheConsole = 5;
             Console.SetCursorPosition(0, indentDown);
             Console.ReadKey();
 
