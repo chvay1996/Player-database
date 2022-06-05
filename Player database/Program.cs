@@ -243,7 +243,6 @@ namespace Player_database
             byte indentDown = 7;
             byte cleaningTheConsole = 5;
             Console.SetCursorPosition(0, indentDown);
-            Console.ReadKey();
 
             for (int i = 0; i < cleaningTheConsole; i++)
             {
